@@ -1,0 +1,7 @@
+services:
+  pixel-editor:
+    build: .
+    container_name: jdk-001-pixel-editor
+    ports:
+      - "8080:80"
+    restart: unless-stopped

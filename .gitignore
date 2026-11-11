@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vite / TypeScript cache
+*.tsbuildinfo
+
+# Local persistence snapshots (dev exports, mock localStorage dumps)
+localStorage/
+*.localstorage.json
+jdk-001-projects.json
+jdk-001-preferences.json
+
+# Docker
+.docker/
+
+# Misc
+.cache/
+.temp/
+tmp/
+
+# PINRU annotation baseline
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.sample
