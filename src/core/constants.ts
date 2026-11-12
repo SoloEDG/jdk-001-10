@@ -41,3 +41,6 @@ export const STORAGE_KEYS = {
 export const DEFAULT_FRAME_DELAY_MS = 200
 
 export const EXPORT_PIXEL_SCALE = 16
+
+/** GIF 不保留透明时，透明像素默认垫成的底色 */
+export const DEFAULT_GIF_MATTE_COLOR = '#ffffff'

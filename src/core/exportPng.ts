@@ -2,7 +2,12 @@ import { EXPORT_PIXEL_SCALE } from './constants'
 import { compositeLayers } from './pixelGrid'
 import type { Frame } from './types'
 
-function renderFrameToCanvas(
+/**
+ * 将一帧合成结果渲染到离屏画布。
+ * 画布初始保持透明，只绘制不透明像素；PNG 与 GIF 导出共用此渲染路径，
+ * 保证导出结果与编辑器预览的图层合成顺序一致。
+ */
+export function renderFrameToCanvas(
   frame: Frame,
   size: number,
   scale: number,
@@ -25,15 +30,19 @@ function renderFrameToCanvas(
   return canvas
 }
 
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function downloadPng(canvas: HTMLCanvasElement, filename: string): void {
   canvas.toBlob((blob) => {
     if (!blob) return
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, filename)
   }, 'image/png')
 }
 
@@ -53,7 +62,7 @@ export function exportAllFramesPng(
   projectName: string,
   scale = EXPORT_PIXEL_SCALE,
 ): void {
-  const safe = projectName.replace(/[^\w\u4e00-\u9fa5-]+/g, '_')
+  const safe = projectName.replace(/[^\w一-龥-]+/g, '_')
   frames.forEach((frame, i) => {
     exportFramePng(frame, size, `${safe}_frame_${i + 1}.png`, scale)
   })

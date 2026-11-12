@@ -1,5 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue'
-import { CANVAS_SIZES } from '../core/constants'
+import { CANVAS_SIZES, DEFAULT_GIF_MATTE_COLOR } from '../core/constants'
+import { exportAnimationGif } from '../core/exportGif'
 import { exportAllFramesPng, exportFramePng } from '../core/exportPng'
 import { addCustomColor, pushRecentColor } from '../core/paletteService'
 import { compositeLayers } from '../core/pixelGrid'
@@ -33,6 +34,11 @@ const prefs = reactive(loadPreferences())
 const linePending = ref<LinePending | null>(null)
 const isPlaying = ref(false)
 const previewFrameIndex = ref<number | null>(null)
+const isExportingGif = ref(false)
+const gifExportProgress = ref(0)
+const gifPreserveTransparency = ref(true)
+const gifMatteColor = ref(DEFAULT_GIF_MATTE_COLOR)
+const gifExportError = ref<string | null>(null)
 
 const player = createAnimationPlayer({ isPlaying, previewFrameIndex })
 
@@ -256,6 +262,36 @@ function exportAllFrames() {
   exportAllFramesPng(p.frames, p.canvasSize, p.name)
 }
 
+function setGifPreserveTransparency(value: boolean) {
+  gifPreserveTransparency.value = value
+}
+
+function setGifMatteColor(color: string) {
+  gifMatteColor.value = color
+}
+
+async function exportAnimationAsGif() {
+  const p = activeProject.value
+  if (!p || isExportingGif.value) return
+  isExportingGif.value = true
+  gifExportProgress.value = 0
+  gifExportError.value = null
+  try {
+    await exportAnimationGif(p.frames, p.canvasSize, p.frameDelayMs, p.name, {
+      preserveTransparency: gifPreserveTransparency.value,
+      matteColor: gifMatteColor.value,
+      onProgress: (progress) => {
+        gifExportProgress.value = progress
+      },
+    })
+  } catch (error) {
+    gifExportError.value = error instanceof Error ? error.message : 'GIF 导出失败'
+  } finally {
+    isExportingGif.value = false
+    gifExportProgress.value = 0
+  }
+}
+
 let editorStore: ReturnType<typeof buildEditorStore> | null = null
 
 function buildEditorStore() {
@@ -290,6 +326,14 @@ function buildEditorStore() {
     addCustomPaletteColor,
     exportCurrentFrame,
     exportAllFrames,
+    isExportingGif,
+    gifExportProgress,
+    gifPreserveTransparency,
+    gifMatteColor,
+    gifExportError,
+    setGifPreserveTransparency,
+    setGifMatteColor,
+    exportAnimationAsGif,
   })
 }
 

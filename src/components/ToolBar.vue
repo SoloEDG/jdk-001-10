@@ -64,6 +64,37 @@ const tools: { id: ToolType; label: string; hint: string }[] = [
       <h3>导出</h3>
       <button type="button" class="action" @click="store.exportCurrentFrame">导出当前帧 PNG</button>
       <button type="button" class="action" @click="store.exportAllFrames">导出全部帧 PNG</button>
+
+      <div class="gif-options">
+        <label class="gif-check">
+          <input
+            type="checkbox"
+            :checked="store.gifPreserveTransparency"
+            @change="store.setGifPreserveTransparency(($event.target as HTMLInputElement).checked)"
+          />
+          保留透明像素
+        </label>
+        <label v-if="!store.gifPreserveTransparency" class="gif-matte">
+          垫底色
+          <input
+            type="color"
+            :value="store.gifMatteColor"
+            @input="store.setGifMatteColor(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <button
+          type="button"
+          class="action primary"
+          :disabled="store.isExportingGif"
+          @click="store.exportAnimationAsGif"
+        >
+          {{ store.isExportingGif ? `导出中 ${Math.round(store.gifExportProgress * 100)}%` : '导出动画 GIF' }}
+        </button>
+        <div v-if="store.isExportingGif" class="progress-track">
+          <div class="progress-fill" :style="{ width: `${store.gifExportProgress * 100}%` }" />
+        </div>
+        <p v-if="store.gifExportError" class="hint gif-error">{{ store.gifExportError }}</p>
+      </div>
     </section>
   </aside>
 </template>
